@@ -404,6 +404,8 @@ int main (int argc, char **argv) {
 	/* terminal attributes _before_ we started messing around with ~ECHO */
 	struct termios termOrig;
 
+	app.player.gnuplot = NULL;
+
 	memset (&app, 0, sizeof (app));
 
 	/* save terminal attributes, before disabling echoing */

@@ -128,6 +128,8 @@ static inline void BarPlayerBufferMove (struct audioPlayer *player) {
 
 #ifdef ENABLE_FAAD
 
+static int framecounter = 0;
+
 /*	play aac stream
  *	@param streamed data
  *	@param received bytes
@@ -178,6 +180,24 @@ static WaitressCbReturn_t BarPlayerAACCb (void *ptr, size_t size,
 
 			for (i = 0; i < frameInfo.samples; i++) {
 				aacDecoded[i] = applyReplayGain (aacDecoded[i], player->scale);
+			}
+			if (!player->gnuplot) {
+				printf("Opening gnuplot\n");
+				player->gnuplot = popen("gnuplot", "w");
+				fputs("set terminal dumb\n", player->gnuplot);
+				fputs("set format x ''\n", player->gnuplot);
+				fputs("set format y ''\n", player->gnuplot);
+				fputs("set data style dots\n", player->gnuplot);
+				fprintf(player->gnuplot, "set yrange [%hd:%hd]\n", SHRT_MIN, SHRT_MAX);
+			}
+			framecounter++;
+			if (framecounter % 10)
+			{
+				fputs("plot '-' with impulse\n", player->gnuplot);
+				unsigned long i;
+				for (i = 0; i < frameInfo.samples; i ++)
+					fprintf(player->gnuplot, "%hd\n", ((short *)aacDecoded)[i]);
+				fputs("e\n", player->gnuplot);
 			}
 			/* ao_play needs bytes: 1 sample = 16 bits = 2 bytes */
 			ao_play (player->audioOutDevice, (char *) aacDecoded,

@@ -96,6 +96,9 @@ struct audioPlayer {
 	struct mad_synth mp3Synth;
 	#endif
 
+	/* gnuplot pipe */
+	FILE *gnuplot;
+
 	/* audio out */
 	ao_device *audioOutDevice;
 	const BarSettings_t *settings;
